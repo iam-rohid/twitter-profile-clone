@@ -19,6 +19,8 @@ const PROFILE_PIC =
 
 const APPBAR_HEIGHT = 52;
 const DEFAULT_PADDING = 44;
+const APPBAR_TITLE_TO_NAME_DISTANCE = 122;
+const APPBAR_INFO_OFFSET = 156;
 
 const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
 
@@ -27,7 +29,7 @@ const ProfileScreen = () => {
   const appBarPaddingBottom = useSharedValue(DEFAULT_PADDING);
   const profileOffset = useSharedValue(0);
   const blurIntensity = useSharedValue(0);
-  const appBarInfoOffset = useSharedValue(122);
+  const appBarInfoOffset = useSharedValue(APPBAR_INFO_OFFSET);
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
@@ -36,17 +38,22 @@ const ProfileScreen = () => {
         DEFAULT_PADDING - event.contentOffset.y
       );
       profileOffset.value = -event.contentOffset.y;
-      blurIntensity.value = Math.min(60, Math.max(0, -event.contentOffset.y));
-      if (event.contentOffset.y > 122) {
-        const y = event.contentOffset.y - 122;
-        blurIntensity.value = interpolate(
-          y,
-          [0, 80],
-          [0, 60],
-          Extrapolate.CLAMP
-        );
-      }
-      appBarInfoOffset.value = Math.max(0, -event.contentOffset.y + 156);
+
+      blurIntensity.value = interpolate(
+        event.contentOffset.y,
+        [
+          -40,
+          0,
+          APPBAR_TITLE_TO_NAME_DISTANCE,
+          APPBAR_TITLE_TO_NAME_DISTANCE + 80,
+        ],
+        [40, 0, 0, 40],
+        Extrapolate.CLAMP
+      );
+      appBarInfoOffset.value = Math.max(
+        0,
+        -event.contentOffset.y + APPBAR_INFO_OFFSET
+      );
     },
   });
 
@@ -156,7 +163,7 @@ const ProfileScreen = () => {
                 shadowOffset: { height: 0, width: 0 },
               }}
             >
-              @rohiddev
+              312 Tweets
             </Text>
           </Animated.View>
           <TouchableOpacity style={styles.appBarIconButton}>
@@ -254,7 +261,11 @@ const ProfileScreen = () => {
             </Text>
           </View>
         </View>
-        <View style={{ height: 2000 }} />
+        {new Array(100).fill("Post").map((item, i) => (
+          <View key={i} style={{ padding: 12 }}>
+            <Text>Post</Text>
+          </View>
+        ))}
       </Animated.ScrollView>
     </View>
   );
